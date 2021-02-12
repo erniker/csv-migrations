@@ -123,14 +123,14 @@ const saveCandle = async (index, csvData, period) => {
     high: row[4],
     low: row[5],
     volumeQuote: row[7],
-    volumeBase: row[8],
+    volumeBase: row[8] === "nan" ? 0 : row[8],
     tradeCount: row[9] === "NULL" ? 0 : row[9],
     exchange: "BNB",
   });
+  //console.log(index);
   await candle.save();
-  console.log(index);
   if (!csvData[index + 1]) return;
-  saveCandle(index + 1, csvData, period);
+  await saveCandle(index + 1, csvData, period);
 };
 
 const migrateFile = (index, files) => {
@@ -138,28 +138,25 @@ const migrateFile = (index, files) => {
   const period = getPeriod(fileName);
   const csvData = [];
 
+  console.log(fileName);
   fastcsv
     .parseFile(currDir + fileName)
     .on("data", (data) => {
       csvData.push(data);
     })
     .on("end", async () => {
-      console.log(fileName);
+      //console.log(csvData[2]);
       await saveCandle(2, csvData, period);
-      console.log("filename finished");
-      if (!files[index + 1]) {
-        console.log("congratulations! All filas has been migrated!");
-        process.exit();
-      }
-      migrateFile(index + 1, files);
+      console.log("file finished");
+      await migrateFile(index + 1, files);
     });
 };
 
 const currDir = path.join(__dirname + "/20210206/");
 //const currDir = path.join(__dirname + "/");
-readdir(currDir).then((filenames) => {
+readdir(currDir).then(async (filenames) => {
   filenames = filenames.filter(filtercsvFiles);
-  migrateFile(0, filenames);
+  await migrateFile(0, filenames);
 });
 
 // Para ejecutar:
