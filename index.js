@@ -10,7 +10,7 @@ mongoose.Promise = Promise;
 
 // connect to mongo db
 // Local
-const mongoUri = "mongodb://localhost/core";
+// const mongoUri = "mongodb://localhost/core";
 //Pro
 //const mongoUri = "mongodb://mongo.ippai-games.com/core";
 
